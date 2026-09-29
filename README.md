@@ -597,5 +597,5 @@ Connect Power BI to the MySQL database, create the required relationships, imple
 
 **Author:** Priyanka Lakra
 **Role:** Data Analyst
-**Portfolio:** [bloomindata.in](https://bloomindata.in/)
-**LinkedIn:** [linkedin.com/in/priyankalakra006](https://www.linkedin.com/in/priyankalakra006/)
+**Portfolio:** [bloomindata.in]
+**LinkedIn:** [linkedin.com]
