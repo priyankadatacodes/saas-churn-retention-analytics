@@ -1,14 +1,16 @@
 # SaaS Customer Churn, Revenue & Retention Analytics
 
-End-to-end analysis of **customer churn, product engagement, support behavior, recurring revenue, and retention risk** using Python, MySQL, SQL, and Power BI.
-
-Built as an end-to-end business analytics project covering data ingestion, data-quality reconciliation, customer-level data modeling, SQL analysis, Power BI reporting, and retention recommendations.
-
 ![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python\&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-4479A1?logo=mysql\&logoColor=white)
 ![SQL](https://img.shields.io/badge/SQL-Analytics-336791)
 ![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-F2C811?logo=powerbi\&logoColor=black)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
+
+End-to-end analysis of **customer churn, product engagement, support behavior, recurring revenue, and retention risk** using Python, MySQL, SQL, and Power BI.
+
+Built as an end-to-end business analytics project covering data ingestion, data-quality reconciliation, customer-level data modeling, SQL analysis, Power BI reporting, and retention recommendations.
+
+
 
 ---
 
