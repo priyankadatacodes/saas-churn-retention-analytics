@@ -6,59 +6,64 @@
 ![Power BI](https://img.shields.io/badge/Power%20BI-Dashboard-F2C811?logo=powerbi\&logoColor=black)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 
-End-to-end analysis of **customer churn, product engagement, support behavior, recurring revenue, and retention risk** using Python, MySQL, SQL, and Power BI.
+## Executive Summary
 
-Built as an end-to-end business analytics project covering data ingestion, data-quality reconciliation, customer-level data modeling, SQL analysis, Power BI reporting, and retention recommendations.
+End-to-end SaaS analytics project focused on **customer churn, recurring revenue, product engagement, support behavior, and retention risk**.
 
+The project combines **Python, MySQL, SQL, and Power BI** to transform raw relational data into customer-level analytics, churn analysis, revenue exposure metrics, risk identification, and stakeholder-ready reporting.
 
+### Business Question
+
+> **Which customers are leaving, why are they leaving, how much recurring revenue is exposed, and which active customers require retention attention?**
 
 ---
 
 ## 1. Business Problem
 
-A B2B SaaS company sells three plan tiers — **Enterprise, Pro, and Basic** — to customers across five industries and five acquisition channels.
+A B2B SaaS company offers **Enterprise, Pro, and Basic** subscription plans across multiple industries and acquisition channels.
 
-Leadership does not have a reliable, single view of:
+Leadership needs a reliable view of:
 
-* **Who is actually still a customer** — the CRM's `churn_flag` and the churn-event log disagree for a large share of accounts.
-* **Why customers leave** — whether due to product gaps, support experience, pricing/budget, or plan/channel-specific factors.
-* **Which active customers are currently at risk** so Customer Success can intervene before a renewal is lost.
-* **How much recurring revenue is exposed** once risk is defined using actual usage and support signals.
+* Customer and revenue churn
+* Churn patterns by plan, industry, channel, and tenure
+* Recurring revenue and customer value
+* Product usage and support behavior
+* Active customers with elevated retention risk
+* Revenue concentration and MRR exposure
+* Key churn drivers
 
-This project addresses these questions end to end through data ingestion, data-quality reconciliation, MySQL modeling, SQL analysis, and Power BI reporting.
+The project addresses these questions through **data-quality reconciliation, customer-level modeling, SQL analytics, and Power BI reporting**.
 
 ---
 
 ## 2. Business Objectives
 
-The analysis is designed to:
-
-1. Measure customer and revenue churn.
-2. Identify churn patterns across plans, industries, acquisition channels, and tenure.
-3. Understand recurring revenue and customer value.
-4. Identify active customers with elevated retention risk.
-5. Analyze product usage and support behavior before churn.
-6. Quantify revenue concentration and revenue exposure.
-7. Build an interactive Power BI dashboard for stakeholder reporting.
-8. Translate analytical findings into actionable retention recommendations.
+* Measure customer and revenue churn
+* Identify churn patterns across customer segments
+* Analyze recurring revenue and customer value
+* Identify customers with elevated retention risk
+* Analyze product usage and support behavior
+* Quantify revenue concentration and MRR exposure
+* Build an interactive Power BI dashboard
+* Translate findings into retention actions
 
 ---
 
 ## 3. Dataset
 
-The project uses five relational CSV datasets downloaded programmatically from GitHub.
+The project uses five relational CSV datasets.
 
-| Dataset         | Grain                    |   Rows |
-| --------------- | ------------------------ | -----: |
-| `accounts`      | 1 row per customer       |    500 |
-| `subscriptions` | 1 row per subscription   |  5,000 |
-| `usage`         | 1 row per usage event    | 25,000 |
-| `support`       | 1 row per support ticket |  2,000 |
-| `churn`         | 1 row per churn event    |    600 |
+| Dataset         | Grain          |   Rows |
+| --------------- | -------------- | -----: |
+| `accounts`      | Customer       |    500 |
+| `subscriptions` | Subscription   |  5,000 |
+| `usage`         | Usage Event    | 25,000 |
+| `support`       | Support Ticket |  2,000 |
+| `churn`         | Churn Event    |    600 |
 
 ### Customer Segments
 
-**Subscription Plans**
+**Plans**
 
 * Enterprise
 * Pro
@@ -80,36 +85,35 @@ The project uses five relational CSV datasets downloaded programmatically from G
 * Partner
 * Other
 
-The `churn` table contains event-level records, meaning a customer can appear more than once due to churn, reactivation, and subsequent churn events. The `usage` table is linked to customers through `subscription_id`.
+The `churn` dataset is event-level, allowing customers to appear multiple times due to churn and reactivation events. Usage data is connected to customers through `subscription_id`.
 
 ---
 
-## 4. Data Architecture
+## 4. Analytics Workflow
 
-The project follows an end-to-end analytics pipeline from raw data ingestion to business recommendations.
-
-```mermaid
-flowchart LR
-    A["GitHub Raw CSVs<br/>5 Relational Files"]
-    --> B["Python<br/>Ingestion • Cleaning<br/>Validation • EDA"]
-
-    B --> C["Customer Master Dataset<br/>1 Row per Customer"]
-
-    B --> D["MySQL Database<br/>Star Schema"]
-
-    D --> E["SQL Analysis<br/>CTEs • Joins<br/>Window Functions • Cohorts"]
-
-    C --> F["Power BI"]
-    E --> F
-
-    F --> G["Business Insights<br/>Revenue Risk<br/>Retention Recommendations"]
+```text
+Raw CSV Data
+     ↓
+Python Data Ingestion
+     ↓
+Data Quality & Validation
+     ↓
+Customer-Level Aggregation
+     ↓
+MySQL Star Schema
+     ↓
+SQL Business Analysis
+     ↓
+Power BI Dashboard
+     ↓
+Churn & Retention Insights
 ```
 
-The workflow connects raw CSVs, Python processing, customer-level modeling, MySQL, SQL analysis, Power BI, and business recommendations.
+The workflow covers ingestion, quality checks, customer-level modeling, SQL analysis, dashboard development, and retention analysis.
 
 ---
 
-## 5. Data Preparation & Quality Checks
+## 5. Data Preparation & Quality
 
 Python is used for:
 
@@ -121,12 +125,12 @@ Python is used for:
 * Referential-integrity checks
 * Grain validation
 * Customer-level aggregation
-* Exploratory data analysis
+* Exploratory analysis
 * Master dataset creation
 
-### Customer-Level Master Dataset
+### Customer-Level Modeling
 
-The five source tables have different grains:
+The source datasets operate at different grains:
 
 | Table           | Grain          |
 | --------------- | -------------- |
@@ -136,7 +140,7 @@ The five source tables have different grains:
 | `support`       | Support Ticket |
 | `churn`         | Churn Event    |
 
-Directly joining these tables can create a **fan-out problem**.
+Directly joining these tables can create **fan-out and aggregation errors**.
 
 For example:
 
@@ -147,19 +151,11 @@ For example:
 = 2,000 rows
 ```
 
-for a single customer.
+Instead, each source is aggregated to **one row per customer** before being merged with the customer-level `accounts` dataset.
 
-This would cause downstream `SUM()` calculations to be incorrectly inflated.
-
-The solution is to aggregate each table to **one row per customer first**, then merge the results onto the `accounts` table.
-
-The final master dataset is validated with an assertion confirming exactly one row per customer.
+The final master dataset is validated to ensure exactly one row per customer.
 
 ### Usage Relationship
-
-The `usage` table does not contain `account_id`.
-
-Therefore:
 
 ```text
 Usage
@@ -169,46 +165,44 @@ Subscription
 Customer
 ```
 
-Usage must first be joined to subscriptions to identify the customer before customer-level aggregation.
+Because `usage` does not contain `account_id`, usage records must first be mapped through subscriptions before customer-level aggregation.
 
 ---
 
 ## 6. Data Quality Reconciliation
 
-A major data-quality issue was identified between:
+A key issue was identified between:
 
 * `accounts.csv` → `churn_flag`
 * `churn.csv` → churn events
 
-The two sources disagree for a meaningful number of customers.
+These sources disagree for a meaningful number of customers.
 
-The project treats the **churn events table as the analytical source of truth** because it provides the more detailed event-level record.
+For analytical purposes, the **churn events table is treated as the source of truth** because it provides detailed event-level records.
 
-This decision is documented and applied consistently throughout the analytical layer.
+This definition is applied consistently across the analytical layer.
 
 ---
 
-## 7. Data Modeling
+## 7. Data Model
 
-After customer-level processing, the data is loaded into a MySQL **star schema**.
-
-### Schema Structure
+The cleaned data is loaded into a MySQL **star schema**.
 
 ```text
-dim_customer
-     |
-     +---------------- fact_subscription
-     |
-     +---------------- fact_usage
-     |
-     +---------------- fact_support
-     |
-     +---------------- fact_churn
+                 dim_customer
+                      |
+        +-------------+-------------+
+        |             |             |
+        ↓             ↓             ↓
+fact_subscription  fact_usage  fact_support
+                      |
+                      ↓
+                 fact_churn
 
-master_customer_analytics
+          master_customer_analytics
 ```
 
-The database contains:
+### Core Tables
 
 * `dim_customer`
 * `fact_subscription`
@@ -217,59 +211,53 @@ The database contains:
 * `fact_churn`
 * `master_customer_analytics`
 
-This structure separates customer dimensions from transactional fact tables and provides proper keys, relationships, and referential integrity for analysis.
+This structure separates customer dimensions from transactional fact tables and supports controlled joins, analytical queries, and referential integrity.
 
 ---
 
 ## 8. SQL Analysis
 
-The SQL layer uses MySQL to answer customer, revenue, churn, usage, support, cohort, and risk-related business questions.
+MySQL is used to analyze:
 
-### Analytical Techniques
+* Customer behavior
+* Revenue
+* Churn
+* Product usage
+* Support activity
+* Cohort retention
+* Customer risk
+* Customer value
+
+### SQL Techniques
 
 * Joins
 * Common Table Expressions
 * Aggregations
-* Window functions
+* Window Functions
 * `RANK`
 * `LAG`
 * `NTILE`
-* Cohort retention analysis
-* Customer risk scoring
-* Value-quartile analysis
+* Cohort Analysis
+* Customer Risk Scoring
+* Value Quartile Analysis
 
-The SQL analysis covers:
-
-1. Schema and data-quality setup
-2. Customer analysis
-3. Revenue analysis
-4. Churn analysis
-5. Usage analysis
-6. Support analysis
-7. Cohort analysis
-8. Lifecycle and customer-risk analysis
-
-The analysis also produces a composite customer risk score and a Top-15 at-risk customer list.
+The SQL layer also produces a **composite customer risk score** and a **Top-15 at-risk customer list**.
 
 ---
 
 ## 9. Power BI Dashboard
 
-The final reporting layer is a **5-page interactive Power BI dashboard**.
+The project includes a **5-page interactive Power BI dashboard**.
 
-### Dashboard Pages
+| Dashboard Page      | Focus                                   |
+| ------------------- | --------------------------------------- |
+| Executive Overview  | Business KPIs and SaaS performance      |
+| Churn & Retention   | Churn and retention metrics             |
+| Customer Health     | Engagement and risk indicators          |
+| Revenue Risk        | MRR exposure and revenue concentration  |
+| Acquisition & Value | Acquisition channels and customer value |
 
-| Page                | Focus                                      |
-| ------------------- | ------------------------------------------ |
-| Executive Overview  | Business KPIs and overall SaaS performance |
-| Churn & Retention   | Churn patterns and retention metrics       |
-| Customer Health     | Customer engagement and risk indicators    |
-| Revenue Risk        | MRR exposure and revenue concentration     |
-| Acquisition & Value | Acquisition channels and customer value    |
-
-### Interactive Filters
-
-The dashboard includes synced slicers for:
+### Dashboard Filters
 
 * Date Range
 * Plan
@@ -277,37 +265,26 @@ The dashboard includes synced slicers for:
 * Customer Status
 * Acquisition Channel
 
-### Power BI Workflow
-
-```mermaid
-flowchart LR
-    A["MySQL / SQL Output"]
-    --> B["Power Query"]
-    --> C["Power BI Data Model"]
-    --> D["DAX Measures"]
-    --> E["5-Page Interactive Dashboard"]
-```
-
-Power BI reproduces the same KPI logic used in the SQL layer through DAX measures and calculated columns, keeping the reporting layer consistent with the analytical layer.
+Power BI reproduces the KPI logic from the SQL analytical layer using DAX measures and calculated columns.
 
 ---
 
 ## 10. Key KPIs
 
-| KPI                         | Definition                                                                                     |
-| --------------------------- | ---------------------------------------------------------------------------------------------- |
-| **Total MRR**               | Sum of `mrr_amount` for subscriptions with no `end_date`                                       |
-| **Active MRR**              | Total MRR scoped to accounts where `is_churned = No`                                           |
-| **ARR**                     | Active MRR × 12                                                                                |
-| **Active Customers**        | Distinct customers with `is_churned = No`                                                      |
-| **Customer Churn Rate**     | Churned customers ÷ total customers                                                            |
-| **Revenue Churn Rate**      | MRR from ended subscriptions ÷ total MRR ever billed                                           |
-| **ARPU**                    | Active MRR ÷ Active Customers                                                                  |
-| **Retention Rate**          | 1 − Customer Churn Rate                                                                        |
-| **MRR at Risk**             | Active MRR from customers who are active, in the Low Usage bucket, and have ≥5 support tickets |
-| **Revenue Concentration %** | Top-decile MRR ÷ Total MRR                                                                     |
+| KPI                   | Definition                                                  |
+| --------------------- | ----------------------------------------------------------- |
+| Total MRR             | MRR from subscriptions with no `end_date`                   |
+| Active MRR            | MRR from accounts where `is_churned = No`                   |
+| ARR                   | Active MRR × 12                                             |
+| Active Customers      | Distinct customers where `is_churned = No`                  |
+| Customer Churn Rate   | Churned customers ÷ total customers                         |
+| Revenue Churn Rate    | Ended-subscription MRR ÷ total MRR ever billed              |
+| ARPU                  | Active MRR ÷ Active Customers                               |
+| Retention Rate        | 1 − Customer Churn Rate                                     |
+| MRR at Risk           | Active MRR from low-usage customers with ≥5 support tickets |
+| Revenue Concentration | Top-decile MRR ÷ Total MRR                                  |
 
-All active metrics are consistently scoped to `is_churned = No` to avoid mixing disputed churn records into active-business KPIs.
+Active business KPIs consistently use `is_churned = No` to avoid mixing disputed churn records into active metrics.
 
 ---
 
@@ -315,21 +292,25 @@ All active metrics are consistently scoped to `is_churned = No` to avoid mixing 
 
 ### Customer & Revenue
 
-| Metric              |               Result |
-| ------------------- | -------------------: |
-| Customer Churn Rate |                70.4% |
-| Churned Customers   |            352 / 500 |
-| Revenue Churn Rate  |                10.4% |
-| Total MRR           |          $10,159,608 |
-| Active MRR          |           $3,019,740 |
-| Active Customers    |                  148 |
-| ARPU                |           $20,403.65 |
-| ARR                 | Approximately $36.2M |
-| MRR at Risk         |             $238,570 |
+| Metric              |         Result |
+| ------------------- | -------------: |
+| Customer Churn Rate |      **70.4%** |
+| Churned Customers   |  **352 / 500** |
+| Revenue Churn Rate  |      **10.4%** |
+| Total MRR           |    **$10.16M** |
+| Active MRR          |     **$3.02M** |
+| Active Customers    |        **148** |
+| ARPU                | **$20,403.65** |
+| ARR                 |    **~$36.2M** |
+| MRR at Risk         |    **$238.6K** |
 
 Customer churn is substantially higher than revenue churn, indicating that churn is concentrated among lower-value accounts.
 
-The difference between Total MRR and Active MRR creates a **$7.14M revenue clarity gap**, because the remaining MRR belongs to accounts with an open churn event but no formally closed subscription.
+### Revenue Clarity
+
+A **$7.14M difference** exists between Total MRR and Active MRR because accounts with open churn events do not always have formally closed subscriptions.
+
+This highlights the importance of establishing a consistent churn source of truth before using churn metrics for financial reporting.
 
 ### Plan Analysis
 
@@ -337,7 +318,7 @@ The difference between Total MRR and Active MRR creates a **$7.14M revenue clari
 * Enterprise MRR: **$7.55M**
 * Total MRR: **$10.16M**
 
-Enterprise therefore represents the largest concentration of both revenue and observed churn.
+Enterprise represents the largest concentration of revenue and observed churn.
 
 ### Churn Reasons
 
@@ -356,16 +337,16 @@ No single churn reason dominates the dataset.
 
 | Customer Tenure | Churn Rate |
 | --------------- | ---------: |
-| 0–3 months      |      82.9% |
-| 3–6 months      |      73.9% |
-| 6–12 months     |      71.4% |
-| 12+ months      |      53.9% |
+| 0–3 months      |  **82.9%** |
+| 3–6 months      |  **73.9%** |
+| 6–12 months     |  **71.4%** |
+| 12+ months      |  **53.9%** |
 
-Churn decreases steadily as customer tenure increases.
+Churn decreases as customer tenure increases.
 
 ### Customer Value
 
-The highest-value customer quartile has a **76.8% churn rate**, meaning higher historical value does not protect customers from churn in this dataset.
+The highest-value customer quartile has a **76.8% churn rate**, showing that historical customer value alone does not protect against churn in this dataset.
 
 ### Acquisition Channel
 
@@ -378,60 +359,26 @@ The top 10% of customers by MRR account for **27.4% of total revenue**.
 
 ### Product Usage
 
-Usage volume in the months immediately before churn remains roughly flat.
-
-Therefore, usage volume alone does not visibly predict churn in this dataset.
+Usage volume in the months immediately before churn remains roughly flat. Therefore, **usage volume alone does not visibly predict churn** in this dataset.
 
 ---
 
-## 12. Business Impact
+## 12. Retention Recommendations
 
-### Revenue Clarity
+Based on the analysis:
 
-**$7.14M** of the reported $10.16M Total MRR belongs to accounts whose churn status is disputed between internal sources.
-
-A reliable churn source of truth is therefore required before using the metric for financial reporting.
-
-### Revenue Exposure
-
-Enterprise contributes approximately **74% of Total MRR** while having a **72.8% churn rate**, making plan-level segmentation important for retention analysis.
-
-### Actionable Risk Pool
-
-The **$238.6K MRR-at-Risk** represents a specific group of currently active customers with low usage and high support load.
-
-The Top-15 customer list provides a concrete starting point for Customer Success action.
-
-### Onboarding Opportunity
-
-Churn is highest during the first 3 months at **82.9%** and decreases to **53.9%** for customers with 12+ months of tenure.
-
-### Revenue Concentration
-
-The top 10% of customers represent **27.4% of revenue**, indicating meaningful but not extreme concentration.
-
-### Multiple Churn Drivers
-
-Features, support, and budget are relatively close at **19.0%, 17.3%, and 17.3%**, respectively.
-
-This indicates that retention requires multiple intervention areas rather than a single corrective action.
+1. Establish a consistent **churn source of truth** before reporting churn KPIs.
+2. Build an **Enterprise-specific retention motion**.
+3. Focus onboarding efforts during the **first 90 days**.
+4. Review churn among **high-value customers** at account level.
+5. Investigate the **Partner acquisition channel**.
+6. Develop separate retention approaches for **Support** and **Budget** churn.
+7. Incorporate **tenure and support load** into customer risk assessment.
+8. Use the **$238.6K MRR-at-risk** customer list as a Customer Success action list.
 
 ---
 
-## 13. Retention Recommendations
-
-1. **Reconcile the churn source of truth** before reporting churn KPIs to leadership.
-2. Build an **Enterprise-specific retention motion** given its combination of high MRR and high churn.
-3. **Front-load onboarding investment** during the first 90 days.
-4. Conduct an **account-level review of high-value customer churn**.
-5. **Audit the Partner acquisition channel** to understand the high observed churn rate.
-6. Build separate retention playbooks for **Support and Budget churn**.
-7. Score customer risk using **tenure and support load**, rather than usage volume alone.
-8. Use the **$238.6K MRR-at-risk list** as a recurring Customer Success action list.
-
----
-
-## 14. Project Structure
+## 13. Project Structure
 
 ```text
 saas-churn-retention-analytics/
@@ -466,15 +413,15 @@ saas-churn-retention-analytics/
 
 ---
 
-## 15. How to Run
+## 14. How to Run
 
-### Step 1 — Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-The project requires:
+Required packages:
 
 ```text
 pandas
@@ -485,21 +432,25 @@ sqlalchemy
 pymysql
 ```
 
-### Step 2 — Download the Data
+### 2. Download the Data
 
 ```bash
 python python/01_data_ingestion.py
 ```
 
-This downloads the five CSV files from GitHub into `data/raw/`.
+Downloads the five CSV datasets into:
 
-### Step 3 — Run Data Quality Checks
+```text
+data/raw/
+```
+
+### 3. Run Data Quality Checks
 
 ```bash
 python python/02_data_quality.py
 ```
 
-This checks:
+Checks:
 
 * Missing values
 * Duplicate records
@@ -507,13 +458,13 @@ This checks:
 * Referential integrity
 * Churn-source inconsistencies
 
-### Step 4 — Build the Master Dataset
+### 4. Build the Master Dataset
 
 ```bash
 python python/03_master_dataset_builder.py
 ```
 
-This creates:
+Creates:
 
 ```text
 data/processed/master_customer_analytics.csv
@@ -521,21 +472,25 @@ data/processed/master_customer_analytics.csv
 
 The script validates that the final dataset contains exactly one row per customer.
 
-### Step 5 — Run Python EDA
+### 5. Run EDA
 
 ```bash
 python python/04_eda.py
 ```
 
-This generates five charts in the `screenshots/` directory.
+Generates five charts in:
 
-### Step 6 — Create MySQL Database
+```text
+screenshots/
+```
+
+### 6. Create MySQL Database
 
 ```sql
 CREATE DATABASE IF NOT EXISTS saas_analytics;
 ```
 
-Update your MySQL credentials in:
+Update MySQL credentials in:
 
 ```text
 python/05_mysql_load.py
@@ -547,57 +502,98 @@ Then run:
 python python/05_mysql_load.py
 ```
 
-The script loads:
+### 7. Run SQL Analysis
 
-```text
-dim_customer
-fact_subscription
-fact_usage
-fact_support
-fact_churn
-master_customer_analytics
-```
-
-### Step 7 — Run SQL Analysis
-
-Execute the SQL files in order, beginning with:
+Execute the SQL scripts in order, beginning with:
 
 ```text
 01_schema.sql
 ```
 
-followed by the analytical SQL files.
+Then execute the analytical SQL files.
 
-### Step 8 — Build Power BI Dashboard
+### 8. Build Power BI Dashboard
 
-Connect Power BI to the MySQL database, create the required relationships, implement the DAX measures, and build the five dashboard pages described in the Power BI section.
+Connect Power BI to the MySQL database, create the required relationships, implement the DAX measures, and build the five dashboard pages.
 
 ---
 
-## 16. Limitations
+## 15. Limitations
 
-* The dataset is synthetic and intended for portfolio/practice purposes.
-* This is an **observational analysis**; associations between churn and other variables do not establish causation.
+* Dataset is synthetic and intended for portfolio/practice purposes.
+* Analysis is observational; associations do not establish causation.
 * `accounts.csv` contains 110 customers flagged as churned, while 352 customers appear in the churn events table.
-* The churn events table is treated as the source of truth because it provides event-level detail.
-* The discrepancy creates a **$7.14M difference within the $10.16M Total MRR**.
-* Active KPIs are consistently scoped to `is_churned = No`.
-* Usage contains 42 duplicate `usage_id` values out of 25,000 rows, approximately 0.2%.
-* Customer health and MRR-at-risk are analytical frameworks created for this project and are not validated production churn models.
+* Churn events are therefore treated as the analytical source of truth.
+* The churn discrepancy creates a **$7.14M difference within Total MRR**.
+* Active KPIs are scoped to `is_churned = No`.
+* `usage` contains 42 duplicate `usage_id` values out of 25,000 rows.
+* Customer health and MRR-at-risk are analytical frameworks, not validated production churn models.
 * Results should be validated against real Customer Success data before operational use.
 
 ---
 
-## 17. Future Improvements
+## 16. Future Improvements
 
 * Machine-learning churn prediction
 * Customer Lifetime Value calculation
 * Survival analysis for time-to-churn
-* Automated and scheduled data pipelines using tools such as Airflow
+* Automated data pipelines using Airflow
 * Real-time customer health scoring
 * Integration with production Customer Success data
 
-**Author:** Priyanka Lakra
-**Role:** Data Analyst
-**Portfolio:** [bloomindata.in]
-**LinkedIn:** [linkedin.com]
+---
+
+## 17. Skills Demonstrated
+
+**Data Analytics**
+
+* Customer Churn Analysis
+* Retention Analysis
+* Revenue Analytics
+* Customer Risk Analysis
+* Cohort Analysis
+* Customer Segmentation
+
+**SQL & Database**
+
+* MySQL
+* CTEs
+* Window Functions
+* Ranking
+* Data Modeling
+* Star Schema
+* Data Quality Validation
+
+**Python**
+
+* Pandas
+* Data Cleaning
+* Data Validation
+* Data Aggregation
+* Exploratory Data Analysis
+* SQLAlchemy
+
+**Business Intelligence**
+
+* Power BI
+* DAX
+* KPI Development
+* Interactive Dashboards
+* Revenue Risk Reporting
+
+---
+
+## 18. Author
+
+**Priyanka Lakra**
+Data Analyst | SQL · Python · Power BI · Business Analytics
+
+**Portfolio:** [bloomindata.in](https://bloomindata.in/)
+
+**GitHub:** [priyankadatacodes](https://github.com/priyankadatacodes)
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.
