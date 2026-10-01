@@ -16,7 +16,7 @@ Built as an end-to-end business analytics project covering data ingestion, data-
 
 ## 1. Business Problem
 
-A B2B SaaS company sells three plan tiers — **Enterprise, Pro, and Basic** — to 500 customers across five industries and five acquisition channels.
+A B2B SaaS company sells three plan tiers — **Enterprise, Pro, and Basic** — to customers across five industries and five acquisition channels.
 
 Leadership does not have a reliable, single view of:
 
